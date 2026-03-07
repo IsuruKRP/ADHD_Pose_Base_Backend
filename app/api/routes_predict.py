@@ -1,5 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Form, Depends, HTTPException
-from app.api.deps import require_parent, get_db
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from app.services.pose_ml_service import predict_from_video_file
 
 router = APIRouter()
@@ -29,31 +28,13 @@ async def predict_video(
     age: int = Form(None),
     gender: str = Form(None),
     group: str = Form(None),
-    patient=Depends(require_parent),
-    db=Depends(get_db),
 ):
     try:
         video_bytes = await video.read()
 
         result = predict_from_video_file(video_bytes)
 
-        assessment = await db.assessment.create(
-            data={
-                "patientId": patient.id,
-                "game": "body",
-                "adhdScore": result["adhd_score"],
-                "probability": result["adhd_probability"],
-                "derivedFeatures": result["derived_features"],
-                "age": age,
-                "gender": gender,
-                "rounds": rounds,
-                "group": group,
-            }
-        )
-
         return {
-            "assessment_id": assessment.id,
-            "child_id": patient.patientId,
             "age": age,
             "gender": gender,
             "rounds": rounds,
