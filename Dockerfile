@@ -2,13 +2,16 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
+# Install system dependencies required by OpenCV
+RUN apt-get update && apt-get install -y \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY . .
 
-COPY app ./app
-COPY README.md ./
-COPY .env.example ./
-
-ENV PORT=8001
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
