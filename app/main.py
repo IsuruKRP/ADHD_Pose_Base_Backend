@@ -14,6 +14,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {
+        "name": "ADHD Body Posture Inference Backend",
+        "endpoints": [
+            "/health",
+            "/predict",
+            "/predict-test"
+        ]
+    }
+
 @app.get("/health")
 async def health():
     return {"ok": True}
